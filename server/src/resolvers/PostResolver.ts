@@ -1,4 +1,3 @@
-import { title } from "process";
 import { Post } from "./../entities/Post";
 import { AppContext } from "./../types";
 import { Arg, Ctx, Int, Mutation, Query, Resolver } from "type-graphql";
@@ -20,11 +19,12 @@ export class PostResolver {
 
   @Mutation(() => Post)
   async createPost(
+    @Arg("title") title: string,
     @Arg("content") content: string,
     @Arg("userName") userName: string,
     @Ctx() { em }: AppContext
   ): Promise<Post | null> {
-    const post = em.create(Post, { content, userName });
+    const post = em.create(Post, { title, content, userName });
     await em.persistAndFlush(post);
     return post;
   }
@@ -32,12 +32,14 @@ export class PostResolver {
   @Mutation(() => Post)
   async updatePost(
     @Arg("id") id: number,
+    @Arg("title") title: string,
     @Arg("content") content: string,
     @Ctx() { em }: AppContext
   ): Promise<Post | null> {
     const post = await em.findOne(Post, { id: id });
     if (post) {
-      post.content = content;
+      if (content) post.content = content;
+      if (title) post.title = title;
       await em.persistAndFlush(post);
       return post;
     } else {

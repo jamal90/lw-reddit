@@ -3,22 +3,21 @@ import { Field, Int, ObjectType } from "type-graphql";
 
 @ObjectType()
 @Entity()
-export class Post {
-  @Field(() => Int)
+export class User {
   @PrimaryKey()
+  @Field(() => Int)
   id!: number;
 
+  @Property({ type: "string", length: 255, unique: true })
   @Field(() => String)
-  @Property({ type: "string", length: 512 })
-  title!: string;
-
-  @Field(() => String)
-  @Property({ type: "text" })
-  content!: string;
-
-  @Field(() => String)
-  @Property()
   userName!: string;
+
+  @Property({ type: "string", length: 512 })
+  @Field(() => String)
+  email?: string;
+
+  @Property({ type: "text" })
+  password!: string;
 
   @Field(() => String)
   @Property({ type: "timestamp" })
