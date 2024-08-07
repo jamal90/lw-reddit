@@ -7,11 +7,11 @@ import {
   Field,
   InputType,
   Mutation,
-  ObjectType,
+  Query,
   Resolver,
 } from "type-graphql";
 import argon2 from "argon2";
-import { FieldError, FieldErrors } from "./ApiResponses";
+import { FieldErrors } from "./ApiResponses";
 
 @InputType()
 class UserCreateRequest {
@@ -84,7 +84,7 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async login(
     @Arg("options") options: UserLoginRequest,
-    @Ctx() { em }: AppContext
+    @Ctx() { em, req }: AppContext
   ): Promise<typeof UserResponse> {
     const user = await em.findOne(User, { userName: options.userName });
     if (!user) {
@@ -111,6 +111,20 @@ export class UserResolver {
       };
     }
 
+    // todo - FIX ME! TS error
+    req.session.userId = user.id;
+    console.log(`Session User ID: ${req.session.userId}`);
+
     return user;
+  }
+
+  @Query(() => User)
+  async me(@Ctx() { em, req }: AppContext): Promise<User | null> {
+    if (req.session && req.session.userId) {
+      return await em.findOne(User, { id: req.session.userId });
+    }
+
+    console.error("User is not logged in");
+    return null;
   }
 }
