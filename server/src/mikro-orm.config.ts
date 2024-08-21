@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 import { defineConfig, PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { __prod__ } from "./constants";
-import { Post } from "./entities/Post";
 import path from "path";
+import { Post } from "./entities/Post";
 import { User } from "./entities/User";
 
 // configure env

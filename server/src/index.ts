@@ -18,6 +18,7 @@ import { __prod__ } from "./constants";
 dotenv.config();
 
 const main = async () => {
+  console.info("DB Cred: ", dbConfig);
   // config orm & run migrations
   const orm = await MikroORM.init({
     ...dbConfig,
@@ -67,7 +68,10 @@ const main = async () => {
   });
 
   await apolloServer.start();
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({
+    app,
+    cors: { origin: "http://localhost:3000" },
+  });
 
   app.listen(port, () => {
     console.info(`listening on port ${port}`);
