@@ -13,6 +13,7 @@ import RedisStore from "connect-redis";
 import session from "express-session";
 import { createClient } from "redis";
 import { __prod__ } from "./constants";
+import cors from "cors";
 
 // configure env
 dotenv.config();
@@ -59,6 +60,14 @@ const main = async () => {
     })
   );
 
+  // setup cors
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true,
+    })
+  );
+
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [HelloResolver, PostResolver, UserResolver],
@@ -70,7 +79,7 @@ const main = async () => {
   await apolloServer.start();
   apolloServer.applyMiddleware({
     app,
-    cors: { origin: "http://localhost:3000" },
+    cors: false,
   });
 
   app.listen(port, () => {
