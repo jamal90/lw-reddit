@@ -12,5 +12,5 @@ export class FieldError {
 @ObjectType()
 export class FieldErrors {
   @Field(() => [FieldError])
-  errors!: [FieldError];
+  errors!: FieldError[];
 }

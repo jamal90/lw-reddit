@@ -11,7 +11,8 @@ import {
   Resolver,
 } from "type-graphql";
 import argon2 from "argon2";
-import { FieldErrors } from "./ApiResponses";
+import { FieldError, FieldErrors } from "./ApiResponses";
+import { validateOrReject, ValidationError } from "class-validator";
 
 @InputType()
 class UserCreateRequest {
@@ -53,16 +54,18 @@ export class UserResolver {
     @Arg("options") options: UserCreateRequest,
     @Ctx() { em }: AppContext
   ): Promise<typeof UserResponse> {
-    const hashedPassword = await argon2.hash(options.password);
-    const user = await em.create(User, {
+    let user = await em.create(User, {
       userName: options.userName,
       email: options.email,
-      password: hashedPassword,
+      password: options.password,
     });
 
     try {
+      await validateOrReject(user);
+      user.password = await argon2.hash(options.password);
       await em.persistAndFlush(user);
     } catch (err) {
+      console.error("ERR: ", err);
       if (err instanceof Error) {
         console.error("Error Name: ", err.name);
         if (err.name === "UniqueConstraintViolationException") {
@@ -75,6 +78,15 @@ export class UserResolver {
             ],
           };
         }
+      } else if (err instanceof Array && err[0] instanceof ValidationError) {
+        const errors: FieldError[] = err.map((error: ValidationError) => {
+          return {
+            field: error.property,
+            error: Object.values(error.constraints || {}).join(", "),
+          };
+        });
+
+        return { errors };
       }
     }
 
