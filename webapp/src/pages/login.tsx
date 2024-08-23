@@ -41,7 +41,7 @@ const Login: React.FC<LoginProps> = () => {
               type="password"
             />
             <Button mt={4} type="submit" isLoading={isSubmitting}>
-              Register
+              Login
             </Button>
           </Form>
         )}
