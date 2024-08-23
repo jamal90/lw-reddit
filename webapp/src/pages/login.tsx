@@ -3,35 +3,32 @@ import { Formik, Form } from "formik";
 import { Button } from "@chakra-ui/react";
 import { Wrapper } from "../components/Wrapper";
 import { InputField } from "../components/InputField";
-import { useRegisterUserMutation } from "../generated/graphql";
+import { useLoginMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 import { useRouter } from "next/router";
 interface RegisterProps {}
 
 const Register: React.FC<RegisterProps> = () => {
-  const [_, register] = useRegisterUserMutation();
+  const [_, login] = useLoginMutation();
   const router = useRouter();
 
   return (
     <Wrapper>
       <Formik
-        initialValues={{ userName: "", password: "", email: "" }}
+        initialValues={{ userName: "", password: "" }}
         onSubmit={async (values, { setErrors }) => {
           console.log(values);
-          const res = await register(values);
-          if (res.data?.register.__typename === "FieldErrors") {
-            setErrors(toErrorMap(res.data.register.errors));
-          } else if (res.data?.register.__typename === "User") {
-            console.log(
-              `user id ${res.data.register.id} registered successfully`
-            );
+          const res = await login(values);
+          if (res.data?.login.__typename === "FieldErrors") {
+            setErrors(toErrorMap(res.data.login.errors));
+          } else if (res.data?.login.__typename === "User") {
+            console.log(`user id ${res.data.login.id} registered successfully`);
             router.push("/");
           }
         }}
       >
         {({ values, handleChange, isSubmitting }) => (
           <Form>
-            <InputField name="email" label="Email" placeholder="email" />
             <InputField
               name="userName"
               label="User Name"

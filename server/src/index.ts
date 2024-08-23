@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { MikroORM } from "@mikro-orm/core";
 import dbConfig from "./mikro-orm.config";
 import express from "express";
+import { Express } from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/HelloResolver";
@@ -60,13 +61,7 @@ const main = async () => {
     })
   );
 
-  // setup cors
-  app.use(
-    cors({
-      origin: "http://localhost:3000",
-      credentials: true,
-    })
-  );
+  setupCors(app);
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
@@ -86,5 +81,27 @@ const main = async () => {
     console.info(`listening on port ${port}`);
   });
 };
+
+function setupCors(app: Express) {
+  const allowedOrigins = [
+    "http://localhost:3000",
+    "https://studio.apollographql.com",
+  ];
+
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      credentials: true,
+    })
+  );
+}
 
 main();

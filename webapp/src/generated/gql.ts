@@ -13,6 +13,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
+    "mutation Login($userName: String!, $password: String!) {\n  login(options: {userName: $userName, password: $password}) {\n    __typename\n    ... on User {\n      id\n      userName\n      email\n      createdAt\n      updatedAt\n    }\n    ... on FieldErrors {\n      errors {\n        field\n        error\n      }\n    }\n  }\n}": types.LoginDocument,
     "mutation registerUser($userName: String!, $email: String!, $password: String!) {\n  register(options: {email: $email, userName: $userName, password: $password}) {\n    __typename\n    ... on User {\n      id\n      userName\n      email\n      createdAt\n      updatedAt\n    }\n    ... on FieldErrors {\n      errors {\n        field\n        error\n      }\n    }\n  }\n}": types.RegisterUserDocument,
 };
 
@@ -30,6 +31,10 @@ const documents = {
  */
 export function graphql(source: string): unknown;
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation Login($userName: String!, $password: String!) {\n  login(options: {userName: $userName, password: $password}) {\n    __typename\n    ... on User {\n      id\n      userName\n      email\n      createdAt\n      updatedAt\n    }\n    ... on FieldErrors {\n      errors {\n        field\n        error\n      }\n    }\n  }\n}"): (typeof documents)["mutation Login($userName: String!, $password: String!) {\n  login(options: {userName: $userName, password: $password}) {\n    __typename\n    ... on User {\n      id\n      userName\n      email\n      createdAt\n      updatedAt\n    }\n    ... on FieldErrors {\n      errors {\n        field\n        error\n      }\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

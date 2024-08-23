@@ -13,6 +13,7 @@ import {
 import argon2 from "argon2";
 import { FieldError, FieldErrors } from "./ApiResponses";
 import { validateOrReject, ValidationError } from "class-validator";
+import { Request } from "express";
 
 @InputType()
 class UserCreateRequest {
@@ -52,7 +53,7 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async register(
     @Arg("options") options: UserCreateRequest,
-    @Ctx() { em }: AppContext
+    @Ctx() { req, em }: AppContext
   ): Promise<typeof UserResponse> {
     let user = await em.create(User, {
       userName: options.userName,
@@ -64,6 +65,7 @@ export class UserResolver {
       await validateOrReject(user);
       user.password = await argon2.hash(options.password);
       await em.persistAndFlush(user);
+      this.setSessionCookie(req, user);
     } catch (err) {
       console.error("ERR: ", err);
       if (err instanceof Error) {
@@ -123,11 +125,14 @@ export class UserResolver {
       };
     }
 
+    this.setSessionCookie(req, user);
+    return user;
+  }
+
+  private setSessionCookie(req: Request, user: User) {
     // todo - FIX ME! TS error
     req.session.userId = user.id;
     console.log(`Session User ID: ${req.session.userId}`);
-
-    return user;
   }
 
   @Query(() => User)
