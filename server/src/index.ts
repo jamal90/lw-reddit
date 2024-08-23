@@ -13,7 +13,7 @@ import { UserResolver } from "./resolvers/UserResolver";
 import RedisStore from "connect-redis";
 import session from "express-session";
 import { createClient } from "redis";
-import { __prod__ } from "./constants";
+import { SESSION_COOKIE, __prod__ } from "./constants";
 import cors from "cors";
 
 // configure env
@@ -47,7 +47,7 @@ const main = async () => {
   // Initialize session storage.
   app.use(
     session({
-      name: "qid",
+      name: SESSION_COOKIE,
       store: redisStore,
       resave: false, // required: force lightweight session keep alive (touch)
       saveUninitialized: false, // recommended: only save session when data exists
