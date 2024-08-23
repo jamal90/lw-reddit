@@ -2,11 +2,7 @@ mutation Login($options: UserLoginRequest!) {
   login(options: $options) {
     __typename
     ... on User {
-      id
-      userName
-      email
-      createdAt
-      updatedAt
+      ...UserInfo
     }
     ... on FieldErrors {
       errors {

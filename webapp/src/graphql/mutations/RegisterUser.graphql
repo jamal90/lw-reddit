@@ -4,11 +4,7 @@ mutation registerUser($userName: String!, $email: String!, $password: String!) {
   ) {
     __typename
     ... on User {
-      id
-      userName
-      email
-      createdAt
-      updatedAt
+      ...UserInfo
     }
     ... on FieldErrors {
       errors {
