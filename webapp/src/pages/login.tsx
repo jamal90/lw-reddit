@@ -6,9 +6,9 @@ import { InputField } from "../components/InputField";
 import { useLoginMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 import { useRouter } from "next/router";
-interface RegisterProps {}
+interface LoginProps {}
 
-const Register: React.FC<RegisterProps> = () => {
+const Register: React.FC<LoginProps> = () => {
   const [_, login] = useLoginMutation();
   const router = useRouter();
 
@@ -18,7 +18,7 @@ const Register: React.FC<RegisterProps> = () => {
         initialValues={{ userName: "", password: "" }}
         onSubmit={async (values, { setErrors }) => {
           console.log(values);
-          const res = await login(values);
+          const res = await login({ options: values });
           if (res.data?.login.__typename === "FieldErrors") {
             setErrors(toErrorMap(res.data.login.errors));
           } else if (res.data?.login.__typename === "User") {

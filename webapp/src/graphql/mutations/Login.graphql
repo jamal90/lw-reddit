@@ -1,5 +1,5 @@
-mutation Login($userName: String!, $password: String!) {
-  login(options: { userName: $userName, password: $password }) {
+mutation Login($options: UserLoginRequest!) {
+  login(options: $options) {
     __typename
     ... on User {
       id
