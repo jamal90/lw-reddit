@@ -119,7 +119,7 @@ export class UserResolver {
         errors: [
           {
             field: "password",
-            error: "Invalid password provider",
+            error: "Invalid password provided",
           },
         ],
       };

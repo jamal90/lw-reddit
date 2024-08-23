@@ -8,7 +8,7 @@ import { toErrorMap } from "../utils/toErrorMap";
 import { useRouter } from "next/router";
 interface LoginProps {}
 
-const Register: React.FC<LoginProps> = () => {
+const Login: React.FC<LoginProps> = () => {
   const [_, login] = useLoginMutation();
   const router = useRouter();
 
@@ -50,4 +50,4 @@ const Register: React.FC<LoginProps> = () => {
   );
 };
 
-export default Register;
+export default Login;
