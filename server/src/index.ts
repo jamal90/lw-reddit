@@ -1,20 +1,19 @@
-import "reflect-metadata";
-import dotenv from "dotenv";
 import { MikroORM } from "@mikro-orm/core";
-import dbConfig from "./mikro-orm.config";
-import express from "express";
-import { Express } from "express";
 import { ApolloServer } from "apollo-server-express";
+import dotenv from "dotenv";
+import express, { Express } from "express";
+import "reflect-metadata";
 import { buildSchema } from "type-graphql";
+import dbConfig from "./mikro-orm.config";
 import { HelloResolver } from "./resolvers/HelloResolver";
 import { PostResolver } from "./resolvers/PostResolver";
 import { UserResolver } from "./resolvers/UserResolver";
 
 import RedisStore from "connect-redis";
+import cors from "cors";
 import session from "express-session";
 import { createClient } from "redis";
 import { SESSION_COOKIE, __prod__ } from "./constants";
-import cors from "cors";
 
 // configure env
 dotenv.config();

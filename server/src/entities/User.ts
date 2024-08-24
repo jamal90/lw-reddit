@@ -14,7 +14,7 @@ export class User {
   @MinLength(3, { message: "Username should have at least 3 characters" })
   userName!: string;
 
-  @Property({ type: "string", length: 512 })
+  @Property({ type: "string", length: 512, unique: true })
   @MinLength(7, { message: "Email should have at least 7 characters" })
   @Field(() => String)
   email?: string;

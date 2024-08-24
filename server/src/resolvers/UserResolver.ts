@@ -15,6 +15,7 @@ import { FieldError, FieldErrors } from "./ApiResponses";
 import { validateOrReject, ValidationError } from "class-validator";
 import { Request } from "express";
 import { SESSION_COOKIE } from "./../constants";
+import sendEmail from "./../utils/sendEmail";
 
 @InputType()
 class UserCreateRequest {
@@ -154,6 +155,27 @@ export class UserResolver {
 
     console.error("User is not logged in");
     return null;
+  }
+
+  @Mutation(() => Boolean)
+  async forgotPassword(
+    @Arg("email") email: string,
+    @Ctx() { em }: AppContext
+  ): Promise<Boolean> {
+    const user = await em.findOne(User, { email: email });
+    if (!user) return false;
+
+    const messageInfo = await sendEmail(
+      email,
+      `
+      Hi ${user.userName}, <br/>
+      You can reset your password by following this link: <a href='http://localhost:4000/register'>Reset Password</a><br/>
+      Best, <br/>
+      👻
+      `
+    );
+
+    return messageInfo.messageId != null;
   }
 
   private setSessionCookie(req: Request, user: User) {
