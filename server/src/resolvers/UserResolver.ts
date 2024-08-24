@@ -1,5 +1,6 @@
-import { User } from "./../entities/User";
-import { AppContext } from "./../types";
+import argon2 from "argon2";
+import { validateOrReject } from "class-validator";
+import { Request } from "express";
 import {
   Arg,
   createUnionType,
@@ -10,12 +11,13 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import argon2 from "argon2";
-import { FieldError, FieldErrors } from "./ApiResponses";
-import { validateOrReject, ValidationError } from "class-validator";
-import { Request } from "express";
-import { SESSION_COOKIE } from "./../constants";
+import { v4 } from "uuid";
+import { REDIS_PASS_RESET_PREFIX, SESSION_COOKIE } from "./../constants";
+import { User } from "./../entities/User";
+import { AppContext } from "./../types";
+import { handleUserRegisterError } from "./../utils/errorHandler";
 import sendEmail from "./../utils/sendEmail";
+import { FieldErrors } from "./ApiResponses";
 
 @InputType()
 class UserCreateRequest {
@@ -69,29 +71,7 @@ export class UserResolver {
       await em.persistAndFlush(user);
       this.setSessionCookie(req, user);
     } catch (err) {
-      console.error("ERR: ", err);
-      if (err instanceof Error) {
-        console.error("Error Name: ", err.name);
-        if (err.name === "UniqueConstraintViolationException") {
-          return {
-            errors: [
-              {
-                field: "userName",
-                error: "User name must be unique",
-              },
-            ],
-          };
-        }
-      } else if (err instanceof Array && err[0] instanceof ValidationError) {
-        const errors: FieldError[] = err.map((error: ValidationError) => {
-          return {
-            field: error.property,
-            error: Object.values(error.constraints || {}).join(", "),
-          };
-        });
-
-        return { errors };
-      }
+      return handleUserRegisterError(err);
     }
 
     return user;
@@ -160,16 +140,21 @@ export class UserResolver {
   @Mutation(() => Boolean)
   async forgotPassword(
     @Arg("email") email: string,
-    @Ctx() { em }: AppContext
+    @Ctx() { em, redis }: AppContext
   ): Promise<Boolean> {
     const user = await em.findOne(User, { email: email });
     if (!user) return false;
 
+    const passwordResetToken = v4();
+    // key set to expire in 30 min
+    redis.set(REDIS_PASS_RESET_PREFIX + passwordResetToken, user.id, {
+      EX: 1000 * 60 * 30,
+    });
     const messageInfo = await sendEmail(
       email,
       `
       Hi ${user.userName}, <br/>
-      You can reset your password by following this link: <a href='http://localhost:4000/register'>Reset Password</a><br/>
+      You can reset your password by following this link: <a href='http://localhost:4000/reset-password/${passwordResetToken}'>Reset Password</a><br/>
       Best, <br/>
       👻
       `

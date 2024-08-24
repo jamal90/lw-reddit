@@ -67,7 +67,12 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }) => ({ em: orm.em.fork(), req, res }),
+    context: ({ req, res }) => ({
+      redis: redisClient,
+      em: orm.em.fork(),
+      req,
+      res,
+    }),
   });
 
   await apolloServer.start();
