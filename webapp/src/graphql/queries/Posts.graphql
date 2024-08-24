@@ -1,0 +1,11 @@
+query readPosts {
+  posts {
+    __typename
+    id
+    title
+    content
+    userName
+    createdAt
+    updatedAt
+  }
+}
